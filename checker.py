@@ -42,7 +42,7 @@ if __name__ == "__main__":
                 # check if date expires
                 if len(row) > 1:
                     expires_date = datetime.strptime(row[1], '%Y-%m-%d %H:%M:%S')
-                    if days_between(datetime.today(), expires_date) > renew_days:
+                    if expires_date > datetime.today() and days_between(datetime.today(), expires_date) > renew_days:
                         rows.append(row)
                         continue
                 # get expiration date
@@ -58,13 +58,13 @@ if __name__ == "__main__":
                 err_message = str(e)
                 row[2] = err_message
                 rows.append(row)
-                email_message = email_message + "\n" + err_message
+                email_message = email_message + "\n" + domain + ": " + err_message
                 print(domain, err_message)
     # save updates to csv
-    with open(fileName, 'w') as file:
-        writer = csv.writer(file)
-        writer.writerows(rows)
+    # with open(fileName, 'w') as file:
+    #     writer = csv.writer(file)
+    #     writer.writerows(rows)
     # send email
-    if email_message != "":
-        send_email(email_message)
+    # if email_message != "":
+        # send_email(email_message)
     print('DONE')
