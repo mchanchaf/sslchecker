@@ -1,5 +1,5 @@
 import os, csv, re, time, requests
-from datetime import datetime
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -17,6 +17,8 @@ def check_ssl(domain):
     return response.text
 
 def send_email(message):
+    if email_message == "":
+        return "NOTHING"
     if smtp_domain != None and smtp_api_key != None and smtp_from != None and smtp_to != None:
         endpoint = "https://api.mailgun.net/v3/" + smtp_domain + "/messages"
         auth = ("api", smtp_api_key)
@@ -27,12 +29,13 @@ def send_email(message):
         return "SMTP config not found in your ENV file"
 
 def days_between(start_date, end_date):
-    return abs((end_date - start_date).days)
+    return (end_date - start_date).days
 
 if __name__ == "__main__":
     rows = list()
     email_message = ""
     fileName = "domains.csv"
+    current_date = datetime.today()
     # parse csv file
     with open(fileName) as file:
         reader = csv.reader(file)
@@ -41,8 +44,8 @@ if __name__ == "__main__":
             try:
                 # check if date expires
                 if len(row) > 1:
-                    expires_date = datetime.strptime(row[1], '%Y-%m-%d %H:%M:%S')
-                    if expires_date > datetime.today() and days_between(datetime.today(), expires_date) > renew_days:
+                    expires_date = datetime.strptime(row[1], '%Y-%m-%d %H:%M:%S') - timedelta(days=renew_days)
+                    if current_date <= expires_date:
                         rows.append(row)
                         continue
                 # get expiration date
@@ -61,10 +64,9 @@ if __name__ == "__main__":
                 email_message = email_message + "\n" + domain + ": " + err_message
                 print(domain, err_message)
     # save updates to csv
-    # with open(fileName, 'w') as file:
-    #     writer = csv.writer(file)
-    #     writer.writerows(rows)
+    with open(fileName, 'w') as file:
+        writer = csv.writer(file)
+        writer.writerows(rows)
     # send email
-    # if email_message != "":
-        # send_email(email_message)
+    send_email(email_message)
     print('DONE')
