@@ -22,7 +22,8 @@ def send_email(message):
     if smtp_domain != None and smtp_api_key != None and smtp_from != None and smtp_to != None:
         endpoint = "https://api.mailgun.net/v3/" + smtp_domain + "/messages"
         auth = ("api", smtp_api_key)
-        payload = {"from": smtp_from, "to": smtp_to, "subject": "SSL Checker", "text": message}
+        subject = "SSL Checker " + datetime.now().strftime('%H:%M')
+        payload = {"from": smtp_from, "to": smtp_to, "subject": subject, "text": message}
         response = requests.post(endpoint, auth=auth, data=payload)
         return response.text
     else:
@@ -34,7 +35,7 @@ def days_between(start_date, end_date):
 if __name__ == "__main__":
     rows = list()
     email_message = ""
-    fileName = "domains.csv"
+    fileName = os.path.dirname(__file__) + "/domains.csv"
     current_date = datetime.today()
     # parse csv file
     with open(fileName) as file:
