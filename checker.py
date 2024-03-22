@@ -47,6 +47,7 @@ if __name__ == "__main__":
                 if len(row) > 1:
                     expires_date = datetime.strptime(row[1], '%Y-%m-%d %H:%M:%S') - timedelta(days=renew_days)
                     if current_date <= expires_date:
+                        row[2] = ''
                         rows.append(row)
                         continue
                 # get expiration date
@@ -54,6 +55,7 @@ if __name__ == "__main__":
                 match = re.search(regex, check_ssl(domain))
                 expires = match.group(3)
                 row[1] = expires
+                row[2] = ''
                 rows.append(row)
                 email_message = email_message + "\n" + domain + ": " + expires
                 print(domain, expires)
