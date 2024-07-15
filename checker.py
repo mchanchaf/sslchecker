@@ -1,4 +1,4 @@
-import os, csv, re, time, requests
+import os, csv, re, time, requests, json
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
@@ -28,6 +28,12 @@ def send_email(message):
         return response.text
     else:
         return "SMTP config not found in your ENV file"
+
+def send_discord_message(message):
+    data = {'content': message}
+    headers = {'Content-Type': 'application/json'}
+    webhook_url = 'https://discord.com/api/webhooks/1259807173438083083/PLMwQtZ5ExTAXEOPC-D2ZpjNqq2nC2dhvIP8vqcIUsnnlNGLi9NREHjwVbIYGxCfzB3l'
+    requests.post(webhook_url, headers=headers, data=json.dumps(data))
 
 def days_between(start_date, end_date):
     return (end_date - start_date).days
@@ -70,6 +76,6 @@ if __name__ == "__main__":
     with open(fileName, 'w') as file:
         writer = csv.writer(file)
         writer.writerows(rows)
-    # send email
-    send_email(email_message)
+    # send discord message
+    send_discord_message(email_message)
     print('DONE')
